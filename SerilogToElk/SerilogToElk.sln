@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 		compose.yaml = compose.yaml
 		logstash.conf = logstash.conf
+		filebeat.yml = filebeat.yml
+		filebeat-entrypoint.sh = filebeat-entrypoint.sh
 	EndProjectSection
 EndProject
 Global

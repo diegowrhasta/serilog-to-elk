@@ -1,0 +1,33 @@
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - "/logs/*.log"
+
+setup:
+  kibana:
+    host: 'kibana:5601'
+  template:
+    overwrite: true
+#filebeat.autodiscover:
+#  providers:
+#    - type: docker
+#      hints.enabled: true
+
+processors:
+  - add_cloud_metadata: ~
+  - add_host_metadata: ~
+#  - add_tags:
+#      tags: [SerilogToElk.API]
+#      target: 'ServiceLogAppName'
+
+#output.elasticsearch:
+#  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+
+output.logstash:
+  hosts: ["logstash:5044"]

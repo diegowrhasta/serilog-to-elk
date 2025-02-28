@@ -43,11 +43,38 @@
     networks:
       - elk
   
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.5.0
+    container_name: filebeat
+    user: root  # Filebeat needs root access to read logs
+    depends_on:
+      - elasticsearch
+      - serilogtoelk.api
+    volumes:
+      - ./logs:/logs:ro  # Read logs from shared volume
+      - ./filebeat.yml:/tmp/filebeat.yml:ro
+      - ./filebeat-entrypoint.sh:/filebeat-entrypoint.sh:ro
+    entrypoint: /filebeat-entrypoint.sh
+    networks:
+      - elk
+  
   serilogtoelk.api:
     image: serilogtoelk.api
+    ports:
+      - "5284:8080"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ElasticSearch__ConnectionString=http://elasticsearch:9200
+      - Serilog__Properties__Application=SerilogToElk.API.docker
+      - WithElasticSearchSink=false
     build:
       context: .
       dockerfile: src/SerilogToElk.API/Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - elk
 
 networks:
   elk:

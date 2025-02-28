@@ -4,3 +4,28 @@ GET {{SerilogToElk_API_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{SerilogToElk_API_HostAddress}}/elasticSearchUrl/
+Accept: application/json
+
+###
+
+GET {{SerilogToElk_API_HostAddress}}/work/
+Accept: application/json
+
+###
+
+POST {{SerilogToElk_API_HostAddress}}/work/
+Accept: application/json
+
+###
+
+PUT {{SerilogToElk_API_HostAddress}}/work/
+Accept: application/json
+
+###
+
+DELETE {{SerilogToElk_API_HostAddress}}/work/
+Accept: application/json
+
+###
