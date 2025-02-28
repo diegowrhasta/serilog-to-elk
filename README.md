@@ -1,5 +1,8 @@
 # Serilog to Elk
 
+![Dashboard sample 1](./logs-1.jpg)
+![Dashboard sample 2](./logs-2.jpg)
+
 Prototype to see how to integrate Serilog with the ELK (Elasticsearch, Logstash, Kibana)
 stack for logging storage plus processing and visualizing.
 
@@ -21,7 +24,7 @@ visualize their info.
 ## Setup
 
 A simple `docker-compose up -d` at the root of the solution should be enough to 
-get this up and running. The ELK stack consists of three main components
+get this up and running. The ELK stack consists of five main components.
 
 **Elasticsearch:** A distributed, open-source search and analytics engine designed 
 for handling large volumes of data. Built on Apache Lucene, provides a scalable, 
@@ -301,7 +304,7 @@ on the host or on a docker-compose cluster.
 ### Generating files
 
 In order to integrate correctly with Elasticsearch, it's recommended by the docs 
-to make use of the `EcsTextFormatter`. Something lives in a transitive package:
+to make use of the `EcsTextFormatter`. Something that lives in a transitive package:
 
 ```
 "Using": [
@@ -366,6 +369,8 @@ Whether we have storaged configured and with physical persistent volumes we can
 keep this data.
 
 ### Templates
+
+**Disclaimer:** All of this section is also part of the deprecated approach.
 
 Elasticsearch **templates** define _how an index should be structured_ before data 
 is stored. They act like **schemas** in a database, ensuring that fields are 
@@ -466,11 +471,13 @@ many options were taken out, and enriched in their respective application.
 The way to understand concepts should start from how the log data flows into becoming 
 information:
 
+```
 Web App => Log to File => Filebeat reads file => Emits to Logstash => Logstash transforms => Emits to Elasticsearch => Kibana visualizes data
+```
 
 - Our Web App, is configured to log into a file. This file will hold logs in a JSON 
 format courtesy of the `EcsFormatter` that Elasticsearch provides to us.
-- Filebeat will be constantly reading the logs folder and the moment it picks up on 
+- **Filebeat**will be constantly reading the logs folder and the moment it picks up on 
 new entries it will emit them _RAW_ to Logstash through the network. This is its
 configuration:
 ```
@@ -514,10 +521,10 @@ the API logs there, and have them suffixed with `.log` so that only those types
 of files are picked up on.
 - Commented out we have different options that for the right use case can be 
 extremely helpful. Such as pre-adding other fields (add_tags), or connecting 
-directly to Elasticsearch (outout.elasticsearch). If we try to send things directly, 
+directly to Elasticsearch (output.elasticsearch). If we try to send things directly, 
 we won't get the entries indexed correctly, however. 
 
-- **Logstash** takes care of processing the logs so that they can be indexed later:
+**Logstash** takes care of processing the logs so that they can be indexed later:
 ```
 input {
   beats {
@@ -570,7 +577,7 @@ output {
 ```
 We will now describe what this whole config does.
 
-- Thing of this as a pipeline we are configuring from the source from where the 
+- Think of this as a pipeline we are configuring from the source from where the 
 data will come from all the way to the output.
 - We firstly configure the service to be listening on port `5044` to logs that will 
 be incoming.
@@ -580,7 +587,7 @@ be under a `message` field, we will parse that whole json structure (and index i
 in memory) to a new field called `log`.
   - It's by analyzing the actual logs in the file that we get an idea as to how to 
   navigate them.
-  - At a first level we will have a `log.level` field, we then add new field 
+  - At a first level we will have a `log.level` field, we then add a new field 
   called `@level` to the resulting structure, this will simply map that same value 
   of `log.level` and in case a level is not present we will simply mark it as `Information`
 - It's then that we introduce now the idea of indexes and how we could separate them 
@@ -598,8 +605,8 @@ them, hydrating with more info, and then discriminating where to send them on
 different **indexes** in Elasticsearch.
 
 There's definitely a lot of things to take into consideration, since this is also 
-part of **_Data Science_**, the idea of indexes being buckets of data that is grouped 
-by specific criteria, and that they all have different types of fields, luckily 
+part of **_Data Science_**, the idea of indexes being buckets of data that are grouped 
+by specific criteria, and that they all have different types of fields. Luckily 
 the tools we used are intelligent enough to map things automatically and alleviate 
 most of the grunt work for us. But in case there's a bad mapping, we have the 
 choice to jump in and make the configuration manually. Still, we have to be aware 
@@ -660,7 +667,7 @@ And now, in order to visualize our logs, we can:
 ```
 
 When adding this property to Serilog's config, we can add global metadata that will 
-be attached to every log entry. In this case, every log will have a `"Application": "SerilogToElk.API" 
+be attached to every log entry. In this case, every log will have a `"Application": "SerilogToElk.API"` 
 extra key.
 
 This can be later configured on the log processing pipeline so that this gets mapped 
